@@ -40,6 +40,7 @@ class ExpenseApp {
     this.breakdown = [];
     this.ws = null;
     this.reconnectTimer = null;
+    this.pollingTimer = null;
 
     this.cache = {
       total: 0,
@@ -121,6 +122,15 @@ class ExpenseApp {
         this.openModal();
       }
     });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.startPolling();
+      } else {
+        this.stopPolling();
+        this.loadData();
+      }
+    });
   }
 
   openModal() {
@@ -130,6 +140,18 @@ class ExpenseApp {
 
   closeModal() {
     this.el.modal.close();
+  }
+
+  startPolling() {
+    if (this.pollingTimer) return;
+    this.pollingTimer = setInterval(() => this.loadData(), 10000);
+  }
+
+  stopPolling() {
+    if (this.pollingTimer) {
+      clearInterval(this.pollingTimer);
+      this.pollingTimer = null;
+    }
   }
 
   setStatus(state) {
@@ -153,7 +175,8 @@ class ExpenseApp {
     }
 
     const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-    const url = `${protocol}//${location.host}${location.pathname.replace(/\/?$/, "")}/api/ws`;
+    const base = location.pathname.replace(/\/?$/, "");
+    const url = `${protocol}//${location.host}${base}/api/ws`;
 
     try {
       this.ws = new WebSocket(url);
@@ -215,7 +238,10 @@ class ExpenseApp {
 
       this.render();
     } catch (err) {
-      this.showToast(err.message || "Error loading expenses", "error");
+      // Avoid noise on background polling
+      if (document.visibilityState === "visible") {
+        this.showToast(err.message || "Error loading expenses", "error");
+      }
     }
   }
 
@@ -263,7 +289,8 @@ class ExpenseApp {
     this.el.count.textContent = String(this.cache.count);
 
     if (this.cache.top) {
-      this.el.topCategory.textContent = CATEGORY_META[this.cache.top.category]?.label || this.cache.top.category;
+      const label = CATEGORY_META[this.cache.top.category]?.label || this.cache.top.category;
+      this.el.topCategory.textContent = label;
       this.el.topCategoryAmount.textContent = money(this.cache.top.total);
     } else {
       this.el.topCategory.textContent = "—";
