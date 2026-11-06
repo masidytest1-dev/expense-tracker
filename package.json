@@ -1,0 +1,7 @@
+{
+  "name": "expense-tracker",
+  "type": "module",
+  "dependencies": {
+    "hono": "^4.6.0"
+  }
+}

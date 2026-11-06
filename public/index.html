@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <span class="brand-title">Expense Tracker</span>
+      </div>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#" class="nav-item active" aria-current="page">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          Dashboard
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="status" aria-live="polite">
+          <span class="status-dot" id="ws-status"></span>
+          <span class="status-text" id="ws-text">Connecting…</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="page-subtitle">Track and manage your monthly spending.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="open-add">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          Add expense
+        </button>
+      </header>
+
+      <section class="kpi" aria-label="Summary cards">
+        <article class="card kpi-card">
+          <p class="kpi-label">Total this month</p>
+          <div class="kpi-row">
+            <span class="kpi-value" id="total-month">$0.00</span>
+            <span class="kpi-month" id="current-month">—</span>
+          </div>
+        </article>
+
+        <article class="card kpi-card">
+          <p class="kpi-label">Transactions</p>
+          <div class="kpi-row">
+            <span class="kpi-value" id="tx-count">0</span>
+            <span class="kpi-month">this month</span>
+          </div>
+        </article>
+
+        <article class="card kpi-card">
+          <p class="kpi-label">Top category</p>
+          <div class="kpi-row">
+            <span class="kpi-value" id="top-category">—</span>
+            <span class="kpi-month" id="top-category-amount">$0.00</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid" aria-label="Charts and transactions">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h2>Spending by category</h2>
+          </div>
+          <div class="chart" id="breakdown-chart" aria-label="Category breakdown bar chart">
+            <div class="empty-state small" id="chart-empty">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              <p>No expenses yet for this month.</p>
+            </div>
+          </div>
+          <div class="legend" id="legend" aria-hidden="true"></div>
+        </div>
+
+        <div class="card transactions-card">
+          <div class="card-header">
+            <h2>Recent transactions</h2>
+          </div>
+          <div class="transactions" id="transactions" aria-live="polite">
+            <div class="empty-state small">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              <p>No transactions yet. Add your first expense to get started.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="modal" id="add-modal" aria-labelledby="add-title">
+    <form class="modal-panel" id="add-form" method="dialog">
+      <div class="modal-header">
+        <h2 id="add-title">Add expense</h2>
+        <button type="button" class="btn-icon" id="close-add" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="" disabled selected>Select a category</option>
+            <option value="food">Food</option>
+            <option value="transport">Transport</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="bills">Bills</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="amount">Amount</label>
+          <input id="amount" name="amount" type="number" step="0.01" min="0.01" placeholder="0.00" required>
+        </div>
+        <div class="field">
+          <label for="note">Note <span class="hint">(optional)</span></label>
+          <input id="note" name="note" type="text" maxlength="120" placeholder="e.g. Grocery shopping">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancel-add">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submit-add">Add expense</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
