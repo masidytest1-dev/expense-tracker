@@ -73,6 +73,10 @@ export class App extends DurableObject {
       this.broadcast("expense:created", { id: inserted.id });
       return c.json({ id: inserted.id, category, amount, note }, 201);
     })
+    .get("/api/ws", async (c) => {
+      this.ensureSchema();
+      return this.handleWebSocket(c.req.raw);
+    })
     .delete("/api/expenses/:id", async (c) => {
       this.ensureSchema();
       const id = Number(c.req.param("id"));
@@ -101,10 +105,6 @@ export class App extends DurableObject {
     });
 
   async fetch(request: Request): Promise<Response> {
-    const upgrade = request.headers.get("Upgrade");
-    if (upgrade === "websocket") {
-      return this.handleWebSocket(request);
-    }
     return this.app.fetch(request);
   }
 

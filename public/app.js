@@ -153,7 +153,7 @@ class ExpenseApp {
     }
 
     const protocol = location.protocol === "https:" ? "wss:" : "ws:";
-    const url = `${protocol}//${location.host}${location.pathname.replace(/\/?$/, "")}/`;
+    const url = `${protocol}//${location.host}${location.pathname.replace(/\/?$/, "")}/api/ws`;
 
     try {
       this.ws = new WebSocket(url);
